@@ -782,6 +782,12 @@ impl App {
     }
 
     pub fn next_file(&mut self) {
+        if self.diff_state.cursor_line < self.review_comments_render_height() {
+            if !self.diff_files.is_empty() {
+                self.jump_to_file(0);
+            }
+            return;
+        }
         let visible_items = self.build_visible_items();
         let current_file_idx = self.diff_state.current_file_idx;
 
@@ -940,7 +946,7 @@ impl App {
         offset
     }
 
-    pub(in crate::app) fn review_comments_render_height(&self) -> usize {
+    pub(in crate::app) fn review_comments_section_height(&self) -> usize {
         // Header line is only rendered in multi-file view. See the guards
         // in `src/ui/diff_unified.rs` and `src/ui/diff_side_by_side.rs`.
         let mut height = if self.is_single_file_view { 0 } else { 1 };
@@ -975,6 +981,16 @@ impl App {
             height += 3;
         }
         height
+    }
+
+    pub(in crate::app) fn review_comments_render_height(&self) -> usize {
+        self.issue_comments_start_line()
+            + crate::ui::pr_info_panel::issue_comments_render_height(self)
+    }
+
+    pub(crate) fn issue_comments_start_line(&self) -> usize {
+        crate::ui::pr_info_panel::pr_info_render_height(self)
+            + self.review_comments_section_height()
     }
 
     pub(in crate::app) fn file_render_height(&self, file_idx: usize, file: &DiffFile) -> usize {

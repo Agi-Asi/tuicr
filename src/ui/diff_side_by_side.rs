@@ -237,6 +237,13 @@ pub(super) fn render_side_by_side_diff(frame: &mut Frame, app: &mut App, area: R
     let is_review_comment_mode =
         app.input_mode == InputMode::Comment && app.comment_is_review_level;
 
+    crate::ui::pr_info_panel::append_pr_info_section(
+        app,
+        &mut lines,
+        &mut line_idx,
+        ctx.current_line_idx,
+    );
+
     // The `═══ Review Comments ═══` label is redundant in single-file
     // view -- see the matching guard in `src/ui/diff_unified.rs`.
     if !app.is_single_file_view {
@@ -381,6 +388,14 @@ pub(super) fn render_side_by_side_diff(frame: &mut Frame, app: &mut App, area: R
             line_idx += 1;
         }
     }
+
+    crate::ui::pr_info_panel::append_issue_comments_section(
+        app,
+        &mut lines,
+        &mut line_idx,
+        ctx.current_line_idx,
+        ctx.panel_width.saturating_sub(1),
+    );
 
     for (file_idx, file) in app.diff_files.iter().enumerate() {
         // Single-file view: hide everything except the cursor's file. See

@@ -76,6 +76,13 @@ pub(super) fn render_unified_diff(frame: &mut Frame, app: &mut App, area: Rect) 
     let is_review_comment_mode =
         app.input_mode == InputMode::Comment && app.comment_is_review_level;
 
+    crate::ui::pr_info_panel::append_pr_info_section(
+        app,
+        &mut lines,
+        &mut line_idx,
+        current_line_idx,
+    );
+
     // The `═══ Review Comments ═══` label is redundant in single-file
     // view (review-level comments are still rendered below; they just
     // don't need a banner that confuses horizontal scroll).
@@ -222,6 +229,14 @@ pub(super) fn render_unified_diff(frame: &mut Frame, app: &mut App, area: Rect) 
             line_idx += 1;
         }
     }
+
+    crate::ui::pr_info_panel::append_issue_comments_section(
+        app,
+        &mut lines,
+        &mut line_idx,
+        current_line_idx,
+        comment_width,
+    );
 
     for (file_idx, file) in app.diff_files.iter().enumerate() {
         // Single-file view hides every file except the one the cursor is
