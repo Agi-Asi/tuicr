@@ -124,6 +124,12 @@ Shown below the file tree when local comments or visible remote PR threads exist
 | `y` | Copy review to clipboard |
 | `Y` | Copy the comment at cursor to clipboard |
 
+`e` opens the file at the cursor's line. Terminal editors (`vim`, `nvim`, `nano`, …)
+take over the screen and tuicr reloads the diff once they exit. Windowed editors
+(`code`, `cursor`, `zed`, `subl`, …) open in their own window while tuicr stays on
+screen; reload with `:e` after editing. Adding `--wait` to `$EDITOR` opts a windowed
+editor back into the blocking behaviour.
+
 ## Visual mode
 
 | Key | Action |
