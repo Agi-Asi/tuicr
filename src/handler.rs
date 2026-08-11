@@ -407,6 +407,26 @@ fn handle_export(app: &mut App) {
     }
 }
 
+/// Copy just the comment under the cursor (`Y`). Unlike `y`, the rest of the
+/// review stays out of the clipboard, so a single comment can go straight into
+/// a chat message or an agent prompt.
+fn handle_copy_comment_at_cursor(app: &mut App) {
+    let Some(content) = app.comment_content_at_cursor() else {
+        if app.cursor_on_remote_thread() {
+            let forge = app.forge_display_name();
+            app.set_message(format!("Y copies local comments; this one is on {forge}"));
+        } else {
+            app.set_message("No comment at cursor");
+        }
+        return;
+    };
+    match copy_text_to_clipboard(&content) {
+        Ok(true) => app.set_message("Comment copied to clipboard (via terminal)"),
+        Ok(false) => app.set_message("Comment copied to clipboard"),
+        Err(e) => app.set_warning(format!("{e}")),
+    }
+}
+
 /// Export and quit (used by ZZ keybinding).
 /// When --stdout is set, stores export content and quits.
 /// Otherwise, exports to clipboard and quits.
@@ -1601,6 +1621,7 @@ fn handle_shared_normal_action(app: &mut App, action: Action) {
         // `A` (vim only) edits with the text cursor at end-of-line.
         Action::EditCommentAtEnd if app.comment_vim_enabled => edit_comment_at_cursor(app, true),
         Action::ExportToClipboard => handle_export(app),
+        Action::CopyCommentAtCursor => handle_copy_comment_at_cursor(app),
         Action::SearchNext => {
             app.search_next_in_diff();
         }
