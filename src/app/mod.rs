@@ -43,12 +43,19 @@ pub const GAP_EXPAND_BATCH: usize = 20;
 fn create_forge_backend(
     repo: &ForgeRepository,
     local_checkout: Option<PathBuf>,
+    show_pr_checks: bool,
+    show_pr_comments: bool,
 ) -> Box<dyn ForgeBackend> {
     use crate::forge::traits::ForgeKind;
     match repo.kind {
         ForgeKind::GitHub => {
             use crate::forge::github::gh::GitHubGhBackend;
-            Box::new(GitHubGhBackend::new(Some(repo.clone())).with_local_checkout(local_checkout))
+            Box::new(
+                GitHubGhBackend::new(Some(repo.clone()))
+                    .with_local_checkout(local_checkout)
+                    .with_pr_checks(show_pr_checks)
+                    .with_pr_comments(show_pr_comments),
+            )
         }
         ForgeKind::GitLab => {
             use crate::forge::gitlab::GitLabGlabBackend;
@@ -1267,6 +1274,12 @@ pub struct App {
     pub current_pr_head: Option<String>,
     /// Extended PR metadata rendered at the top of the diff view. Populated in PR mode.
     pub pr_info: Option<crate::forge::traits::PullRequestInfo>,
+    /// Whether pull-request CI checks are fetched and rendered. Defaults to
+    /// false; configured before the first direct PR load.
+    pub show_pr_checks: bool,
+    /// Whether pull-request conversation comments are fetched and rendered.
+    /// Defaults to true; configured before the first direct PR load.
+    pub show_pr_comments: bool,
 
     pub should_quit: bool,
     pub dirty: bool,
@@ -1659,6 +1672,10 @@ pub struct AppStartupOptions<'a> {
     /// Whole-repo annotation mode (`--all-files`). Mutually exclusive with
     /// the other selectors; the binary validates that before reaching here.
     pub all_files: bool,
+    /// Whether pull-request CI checks are fetched and rendered.
+    pub show_pr_checks: bool,
+    /// Whether pull-request conversation comments are fetched and rendered.
+    pub show_pr_comments: bool,
     pub git_backend_preference: GitBackendPreference,
     pub diff_whitespace_mode: DiffWhitespaceMode,
     /// Which commits are selected when a multi-commit review first opens.

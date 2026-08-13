@@ -1,5 +1,11 @@
 use super::*;
 
+#[derive(Clone, Copy)]
+struct PrDisplayOptions {
+    show_checks: bool,
+    show_comments: bool,
+}
+
 impl App {
     pub fn new(
         theme: Theme,
@@ -11,13 +17,17 @@ impl App {
         // selector. Errors here surface before TUI startup like other
         // startup failures.
         if let Some(target) = options.pr_target {
-            return Self::new_from_pr_target(
+            return Self::new_from_pr_target_with_pr_display_options(
                 theme,
                 comment_type_configs,
                 output_to_stdout,
                 target,
                 options.repo_url_override.clone(),
                 options.commit_selection,
+                PrDisplayOptions {
+                    show_checks: options.show_pr_checks,
+                    show_comments: options.show_pr_comments,
+                },
             );
         }
 
@@ -535,6 +545,8 @@ impl App {
             pr_submit_rx: None,
             current_pr_head: None,
             pr_info: None,
+            show_pr_checks: false,
+            show_pr_comments: true,
             should_quit: false,
             dirty: false,
             quit_warned: false,
@@ -778,6 +790,29 @@ impl App {
         repo_url_override: Option<ForgeRepository>,
         commit_selection: CommitSelectionStart,
     ) -> Result<Self> {
+        Self::new_from_pr_target_with_pr_display_options(
+            theme,
+            comment_type_configs,
+            output_to_stdout,
+            target,
+            repo_url_override,
+            commit_selection,
+            PrDisplayOptions {
+                show_checks: false,
+                show_comments: true,
+            },
+        )
+    }
+
+    fn new_from_pr_target_with_pr_display_options(
+        theme: Theme,
+        comment_type_configs: Option<Vec<CommentTypeConfig>>,
+        output_to_stdout: bool,
+        target: &str,
+        repo_url_override: Option<ForgeRepository>,
+        commit_selection: CommitSelectionStart,
+        display_options: PrDisplayOptions,
+    ) -> Result<Self> {
         use crate::forge::azure::az::parse_pull_request_target_azure;
         use crate::forge::bitbucket::bkt::parse_pull_request_target_bitbucket;
         use crate::forge::github::gh::parse_pull_request_target;
@@ -844,7 +879,12 @@ impl App {
             .as_deref()
             .and_then(|root| crate::forge::local_checkout_for_repo(root, &target_repo));
 
-        let backend = create_forge_backend(&target_repo, local_checkout_for_target.clone());
+        let backend = create_forge_backend(
+            &target_repo,
+            local_checkout_for_target.clone(),
+            display_options.show_checks,
+            display_options.show_comments,
+        );
         let highlighter = theme.syntax_highlighter();
         let opened = open_pull_request(
             backend.as_ref(),
@@ -885,6 +925,8 @@ impl App {
             None,
             repo_url_override,
         )?;
+        app.show_pr_checks = display_options.show_checks;
+        app.show_pr_comments = display_options.show_comments;
 
         // Wire the forge backend so context expansion routes through it.
         app.forge_backend = Some(backend);
