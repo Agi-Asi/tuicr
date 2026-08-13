@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>tuicr — terminal UI for code review</title>
-  <meta name="description" content="tuicr is a TUI for code review with vim keybindings. Scroll a GitHub-style diff, leave line-level comments, then push a real PR review to GitHub, or copy structured markdown for your coding agent." />
+  <meta name="description" content="tuicr is a TUI for code review with vim keybindings. Scroll a GitHub-style diff, leave line-level comments, then push a real review to GitHub, GitLab, Bitbucket, or Azure DevOps — or copy structured markdown for your coding agent." />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -424,10 +424,6 @@
       overflow: auto;
     }
     .export-card .body .h { color: var(--fg); }
-    .export-card .body .tag-issue { color: var(--red); }
-    .export-card .body .tag-sug { color: var(--accent); }
-    .export-card .body .tag-note { color: var(--yellow); }
-    .export-card .body .tag-praise { color: var(--green); }
     .export-card .body .path { color: var(--accent-2); }
     .export-card .body .ln { color: var(--orange); }
 
@@ -663,6 +659,35 @@
     }
     .inst code .copy-hint.ok { color: var(--green); }
 
+    /* ── FORGES ─────────────────────────────────────────── */
+    .forge-band {
+      margin: 22px 0 0;
+      padding: 14px 0;
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; flex-wrap: wrap;
+      border-top: 1px dashed var(--line);
+    }
+    .forge-band .label {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--fg-mute);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .forge-band .label::before { content: "// "; }
+    .forge {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--mono); font-size: 13px;
+      color: var(--fg-dim); text-decoration: none;
+      border: 1px solid var(--line); border-radius: 3px;
+      padding: 5px 10px;
+      transition: color .15s, border-color .15s;
+    }
+    .forge:hover { color: var(--accent); border-color: var(--accent); }
+    .forge svg { width: 15px; height: 15px; fill: currentColor; flex: none; }
+    .forge .cli { color: var(--fg-mute); font-size: 11px; }
+    .forge:hover .cli { color: var(--accent); }
+
     /* ── SPONSORS ───────────────────────────────────────── */
     .sponsors-band {
       margin: 18px 0 0;
@@ -770,7 +795,7 @@
         <svg class="star-icon" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
         </svg>
-        <b id="stars">991</b><!-- stars:auto -->
+        <b id="stars">2.7k</b><!-- stars:auto · 2710 -->
       </a>
     </div>
   </nav>
@@ -780,6 +805,7 @@
     <div class="crumbs">
       <span class="dot"></span>
       <span class="pill">git · jj · hg</span>
+      <span class="pill">github · gitlab · bitbucket · azure</span>
       <span class="pill">rust</span>
       <span class="pill">MIT</span>
     </div>
@@ -789,8 +815,8 @@
     </h1>
     <p class="lede">
       <em data-tip="pronounced &ldquo;tweaker&rdquo;">tuicr</em> is a TUI for code review with vim keybindings. Scroll a
-      GitHub-style diff, leave line-level comments, then push a real PR
-      review to GitHub, or copy structured markdown for your coding agent.
+      GitHub-style diff, leave line-level comments, then push a real review to
+      any forge (e.g. GitHub/GitLab) or export to your coding agent.
     </p>
     <div class="install-row">
       <div class="cmd">
@@ -833,6 +859,37 @@
     <p class="demo-caption">
       live in <a href="https://github.com/agavra/tuicr">agavra/tuicr</a> · vim keybindings, GitHub-style diffs, real PR-style comments
     </p>
+    <div class="forge-band">
+      <span class="label">works with</span>
+      <a class="forge" href="https://github.com/agavra/tuicr#to-github" target="_blank" rel="noreferrer"
+         title="GitHub &amp; GitHub Enterprise — comment, approve, request changes, draft. Needs gh.">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        GitHub <span class="cli">gh</span>
+      </a>
+      <a class="forge" href="https://github.com/agavra/tuicr/blob/main/docs/GITLAB.md" target="_blank" rel="noreferrer"
+         title="GitLab.com &amp; self-hosted — comment, approve, request changes, draft. Needs glab.">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m23.6004 9.5927-.0337-.0862L20.3.9814a.851.851 0 0 0-.3362-.405.8748.8748 0 0 0-.9997.0539.8748.8748 0 0 0-.29.4399l-2.2055 6.748H7.5375l-2.2057-6.748a.8573.8573 0 0 0-.29-.4412.8748.8748 0 0 0-.9997-.0537.8585.8585 0 0 0-.3362.4049L.4332 9.5015l-.0325.0862a6.0657 6.0657 0 0 0 2.0119 7.0105l.0113.0087.03.0213 4.976 3.7264 2.462 1.8633 1.4995 1.1321a1.0085 1.0085 0 0 0 1.2197 0l1.4995-1.1321 2.4619-1.8633 5.006-3.7489.0125-.01a6.0682 6.0682 0 0 0 2.0094-7.003z"/>
+        </svg>
+        GitLab <span class="cli">glab</span>
+      </a>
+      <a class="forge" href="https://github.com/agavra/tuicr/blob/main/docs/BITBUCKET.md" target="_blank" rel="noreferrer"
+         title="Bitbucket Cloud — comment, approve. Request changes and draft not supported yet. Needs bkt.">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M.778 1.213a.768.768 0 00-.768.892l3.263 19.81c.084.5.515.868 1.022.873H19.95a.772.772 0 00.77-.646l3.27-20.03a.768.768 0 00-.768-.891zM14.52 15.53H9.522L8.17 8.466h7.561z"/>
+        </svg>
+        Bitbucket <span class="cli">bkt</span>
+      </a>
+      <a class="forge" href="https://github.com/agavra/tuicr/blob/main/docs/AZURE.md" target="_blank" rel="noreferrer"
+         title="Azure DevOps (cloud) — comment, approve, request changes. Needs a PAT or az login.">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m22 18l-5 4l-8-3v3l-4.19-5.75l12.91 1.05V6.34L22 5.65zM4.81 16.25V8.96l12.91-2.62L10.6 2v2.84L3.97 6.76L2 9.38v5.69z"/>
+        </svg>
+        Azure DevOps <span class="cli">az</span>
+      </a>
+    </div>
     <div class="sponsors-band">
       <span class="label">sponsored by</span>
       <a class="sponsor" href="https://www.coderabbit.ai/" target="_blank" rel="noreferrer" aria-label="CodeRabbit">
@@ -868,7 +925,7 @@
       <div class="feat">
         <div class="num">[03]</div>
         <h3><span class="marker">›</span>PR-style comments</h3>
-        <p>Comment at the line, range, file, or review level. Select multi-line ranges with v / V. Classify each by issue, suggestion, note, or praise (or define your own).</p>
+        <p>Comment at the line, range, file, or review level. Select multi-line ranges with v / V. Untyped by default; define your own comment types (issue, nit, question &hellip;) to classify them.</p>
         <div class="keys">
           <span class="k">c</span><span class="k">C</span><span class="k">v</span><span class="k">V</span><span class="k">;c</span><span class="k">Tab</span>
         </div>
@@ -876,9 +933,9 @@
       <div class="feat">
         <div class="num">[04]</div>
         <h3><span class="marker">›</span>Three export targets</h3>
-        <p>Pull a live PR with <code style="color:var(--accent)">tuicr pr 125</code>, then push your review back to GitHub (:submit), copy structured markdown to your clipboard (y), or pipe to stdout for any downstream tool.</p>
+        <p>Pull a live PR with <code style="color:var(--accent)">tuicr pr 125</code> on any of four forges, then push your review back with <code>:submit</code>, copy structured markdown to your clipboard (y), or pipe to stdout for any downstream tool.</p>
         <div class="keys">
-          <span class="k">tuicr pr</span><span class="k">:submit</span><span class="k">y</span><span class="k">--stdout</span>
+          <span class="k">tuicr pr</span><span class="k">tuicr mr</span><span class="k">:submit</span><span class="k">y</span><span class="k">--stdout</span>
         </div>
       </div>
       <div class="feat">
@@ -918,10 +975,10 @@
     <div class="export-grid">
       <div class="target gh">
         <div class="head">
-          <h4><span class="arrow">→</span>GitHub</h4>
+          <h4><span class="arrow">→</span>Remote Forge</h4>
           <span class="when">team workflow</span>
         </div>
-        <p><code>:submit</code> opens a picker (Comment, Approve, Request changes, or Draft). Inline comments land on the right lines as a real PR review; review-level comments become the summary. Requires <code>gh</code> authenticated to the repo.</p>
+        <p><code>:submit</code> allows you to upload your review to your forge of choice, including approving or requesting changes to pull requests. 
         <div class="cmd-row"><span class="pmt">⌘</span><span>:submit</span></div>
       </div>
       <div class="target">
@@ -929,7 +986,7 @@
           <h4><span class="arrow">→</span>Clipboard</h4>
           <span class="when">agent loop</span>
         </div>
-        <p><code>y</code> or <code>:clip</code> copies a structured markdown block. Each comment is numbered, classified, and anchored to a file/line. Paste it back to Claude, Codex, Cursor, or any LLM and let it act on the whole batch.</p>
+        <p><code>y</code> or <code>:clip</code> copies a structured markdown block. Each comment is numbered and anchored to a <code>file:line</code>. Paste it back to Claude, Codex, Cursor, or any LLM and let it act on the whole batch.</p>
         <div class="cmd-row"><span class="pmt">⌘</span><span>y  ·  :clip</span></div>
       </div>
       <div class="target">
@@ -948,25 +1005,23 @@
         <span>clipboard.md  ·  copied <span id="export-time">—</span></span>
         <span style="margin-left:auto">3 comments</span>
       </div>
-<div class="body">I reviewed your code and have the following comments. Please address them.
+<div class="body"><span class="h">## Session:</span> auth-svc@main/unstaged/4098e31
 
-<span class="h">Comment types:</span>
- <span class="tag-issue">ISSUE</span> (problems to fix)
- <span class="tag-sug">SUGGESTION</span> (improvements)
- <span class="tag-note">NOTE</span> (observations)
- <span class="tag-praise">PRAISE</span> (positive feedback)
+I reviewed your code and have the following comments. Please address them.
 
-1. **[<span class="tag-issue">ISSUE</span>]** <span class="path">src/auth.rs</span>:<span class="ln">49</span> — Silent swallow of expiry
-   context when claims.exp &lt;= now. Surface the timestamp
-   so the error message can include it.
+Reviewing unstaged changes
 
-2. **[<span class="tag-sug">SUGGESTION</span>]** <span class="path">src/auth.rs</span>:<span class="ln">102</span> — Pull TOKEN_TTL_SECS
-   into a config struct so tests can override it without
-   recompiling. Default 3600 is fine for prod; rotation
-   policies will want shorter.
+<span class="h">## Local tuicr Comments</span>
 
-3. **[<span class="tag-praise">PRAISE</span>]** <span class="path">tests/auth_test.rs</span> — Nice coverage on the
-   expired-token path. Keep the table-driven style.
+1. `<span class="path">src/auth.rs</span>:<span class="ln">49</span>` - Silent swallow of expiry context
+   when claims.exp &lt;= now. Surface the timestamp so the
+   error message can include it.
+2. `<span class="path">src/auth.rs</span>:<span class="ln">102</span>` - Pull TOKEN_TTL_SECS into a config
+   struct so tests can override it without recompiling.
+   Default 3600 is fine for prod; rotation policies will
+   want shorter.
+3. `<span class="path">tests/auth_test.rs</span>` - Nice coverage on the expired-token
+   path. Keep the table-driven style.
 </div>
     </div>
   </section>
@@ -1015,7 +1070,7 @@
             <td><span class="no">·</span></td>
           </tr>
           <tr>
-            <td>Push inline review → GH</td>
+            <td>Push inline review to 4 forges</td>
             <td class="tuicr"><span class="yes">✓</span></td>
             <td><span class="no">·</span></td>
             <td><span class="no">·</span></td>
@@ -1104,7 +1159,7 @@
       <div class="kg-col">
         <h5>Export &amp; cmds</h5>
         <table><tbody>
-          <tr><td><span class="kb">:submit</span></td><td class="desc">push review to GitHub</td></tr>
+          <tr><td><span class="kb">:submit</span></td><td class="desc">push review to your forge</td></tr>
           <tr><td><span class="kb">y · :clip</span></td><td class="desc">copy markdown</td></tr>
           <tr><td><span class="kb">--stdout</span></td><td class="desc">pipe to stdout</td></tr>
           <tr><td><span class="kb">:diff</span></td><td class="desc">unified ⇄ side-by-side</td></tr>
@@ -1245,12 +1300,19 @@
   }
 
   // ── Stars ────────────────────────────────────────────
+  // 2710 → "2.7k", 12345 → "12k", 991 → "991".
+  function formatStars(n) {
+    if (n < 1000) return String(n);
+    const k = n / 1000;
+    return (k >= 10 ? Math.round(k) : Math.round(k * 10) / 10) + 'k';
+  }
+
   function fetchStars() {
     fetch('https://api.github.com/repos/agavra/tuicr')
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(d => {
         if (typeof d.stargazers_count === 'number') {
-          document.getElementById('stars').textContent = d.stargazers_count;
+          document.getElementById('stars').textContent = formatStars(d.stargazers_count);
         }
       })
       .catch(() => {}); // keep the build-time count baked into #stars
