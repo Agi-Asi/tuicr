@@ -576,6 +576,8 @@ pub enum InputMode {
     Command,
     Search,
     Help,
+    /// Scrollable full-screen view for the complete current error message.
+    MessageDetails,
     Confirm,
     CommitSelect,
     VisualSelect,
@@ -1136,6 +1138,7 @@ pub struct App {
     pub file_filter: FileTreeFilter,
     pub command_buffer: String,
     pub(crate) command_completion: Option<CommandCompletionState>,
+    pub(crate) command_return_mode: InputMode,
     pub search_buffer: String,
     pub last_search_pattern: Option<String>,
     pub(crate) search_needle_lower: Option<String>,
@@ -1144,6 +1147,7 @@ pub struct App {
     pub(crate) search_highlight_visible: bool,
     pub search_highlight_enabled: bool,
     pub(crate) search_return_mode: InputMode,
+    pub(crate) overlay_return_mode: InputMode,
     pub comment_buffer: String,
     pub comment_cursor: usize,
     /// Config `comment_vim`: vim modal editing in the comment box.
