@@ -1959,6 +1959,7 @@ Match host github-work
             counterpart_line: None,
             start_line: None,
             start_side: None,
+            range_anchors: None,
             old_path: None,
             body: body.to_string(),
             comment_id: format!("cid-{line}"),
