@@ -446,6 +446,12 @@ impl App {
             commit_list.len()
         };
 
+        // PR sources arrive with a synthetic `forge:host/owner/repo` root, so
+        // there is no on-disk root to record here. `new_from_pr_target` fills
+        // it in from the launch directory after this returns.
+        let local_repo_root = (!matches!(diff_source, DiffSource::PullRequest(_)))
+            .then(|| vcs_info.root_path.clone());
+
         let comment_types = Self::resolve_comment_types(comment_type_configs);
         let default_comment_type = Self::first_comment_type(&comment_types);
         let session_path = crate::persistence::storage::session_path(&session).ok();
@@ -459,6 +465,7 @@ impl App {
             theme,
             vcs,
             vcs_info,
+            local_repo_root,
             session,
             persisted_session_snapshot,
             session_path,
@@ -930,6 +937,10 @@ impl App {
         app.show_pr_checks = display_options.show_checks;
         app.show_pr_comments = display_options.show_comments;
 
+        // `build` sees the PR's synthetic root, so record the real launch
+        // directory here — PRs opened later from the PR tab resolve their
+        // local checkout from it.
+        app.local_repo_root = local_repo_root;
         // Wire the forge backend so context expansion routes through it.
         app.forge_backend = Some(backend);
         app.forge_repository = Some(target_repo);
