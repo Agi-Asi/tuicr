@@ -561,6 +561,30 @@ mod tests {
     }
 
     #[test]
+    fn should_leave_shift_h_unbound_for_vim_motions() {
+        // Reviewed-file visibility is command-only (`:set reviewed!`). `H` is a
+        // vim motion, and this project deliberately does not spend new
+        // single-stroke keys, so nothing may claim it.
+        assert_eq!(
+            map_file_tree_mode(key_shift('H'), DEFAULT_LEADER_KEY),
+            Action::None
+        );
+        assert_eq!(
+            map_normal_mode(key_shift('H'), DEFAULT_LEADER_KEY),
+            Action::None
+        );
+    }
+
+    #[test]
+    fn should_keep_lowercase_h_panning_when_the_file_tree_is_focused() {
+        // `h`/`l` pan the tree horizontally; the tree must not claim them.
+        assert_eq!(
+            map_file_tree_mode(key(KeyCode::Char('h')), DEFAULT_LEADER_KEY),
+            Action::ScrollLeft(4)
+        );
+    }
+
+    #[test]
     fn should_leave_diff_bindings_alone_when_the_tree_is_not_focused() {
         // `i` edits the comment at the cursor in the diff; only the tree
         // reinterprets it as the include filter.

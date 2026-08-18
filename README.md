@@ -283,8 +283,6 @@ A first-session cheatsheet. Press `?` inside tuicr for the full reference.
 | `e` | Open focused file in `$EDITOR` |
 | `y` | Copy review to clipboard |
 | `:edit` | Open focused file in `$EDITOR` |
-| `:copy-url` | Copy the open PR URL (PR mode) |
-| `:summary` | Show pending comments; `j`/`k` select and `Enter` jumps (`Esc` returns) |
 | `:submit` | Push review to GitHub, GitLab, or Bitbucket |
 | `Tab` in `:` prompt | Complete or cycle commands |
 | `?` | Toggle full help |

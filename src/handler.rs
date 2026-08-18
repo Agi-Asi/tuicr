@@ -59,6 +59,12 @@ const COMMAND_SPECS: &[CommandSpec] = &[
     CommandSpec::new(&["set commits"], CommandKind::SetCommitsVisible(true)),
     CommandSpec::new(&["set nocommits"], CommandKind::SetCommitsVisible(false)),
     CommandSpec::new(&["set commits!"], CommandKind::ToggleCommits),
+    CommandSpec::new(&["set reviewed"], CommandKind::SetShowReviewed(true)),
+    CommandSpec::new(&["set noreviewed"], CommandKind::SetShowReviewed(false)),
+    CommandSpec::new(
+        &["reviewed", "set reviewed!"],
+        CommandKind::ToggleShowReviewed,
+    ),
     CommandSpec::new(&["diff"], CommandKind::Diff),
     CommandSpec::new(&["focus", "f"], CommandKind::Focus),
     CommandSpec::new(&["stage"], CommandKind::Stage),
@@ -137,6 +143,8 @@ enum CommandKind {
     SetVim(bool),
     SetCommitsVisible(bool),
     ToggleCommits,
+    SetShowReviewed(bool),
+    ToggleShowReviewed,
     Diff,
     Focus,
     Stage,
@@ -923,6 +931,14 @@ fn dispatch_command(app: &mut App, kind: CommandKind) -> CommandAfterDispatch {
         }
         CommandKind::ToggleCommits => {
             app.toggle_commit_selector();
+            CommandAfterDispatch::ExitCommandMode
+        }
+        CommandKind::SetShowReviewed(show) => {
+            app.set_show_reviewed(show);
+            CommandAfterDispatch::ExitCommandMode
+        }
+        CommandKind::ToggleShowReviewed => {
+            app.toggle_show_reviewed();
             CommandAfterDispatch::ExitCommandMode
         }
         CommandKind::Diff => {
@@ -1792,6 +1808,28 @@ mod command_tests {
         assert_eq!(
             command_spec_for("copy-url").map(|spec| spec.kind),
             Some(CommandKind::CopyUrl)
+        );
+    }
+
+    #[test]
+    fn parses_every_reviewed_visibility_command_form() {
+        // Mirrors `:set commits` / `:set nocommits` / `:set commits!`, plus a
+        // bare toggle alias in the shape of `:wrap`.
+        assert_eq!(
+            command_spec_for("set reviewed").map(|spec| spec.kind),
+            Some(CommandKind::SetShowReviewed(true))
+        );
+        assert_eq!(
+            command_spec_for("set noreviewed").map(|spec| spec.kind),
+            Some(CommandKind::SetShowReviewed(false))
+        );
+        assert_eq!(
+            command_spec_for("set reviewed!").map(|spec| spec.kind),
+            Some(CommandKind::ToggleShowReviewed)
+        );
+        assert_eq!(
+            command_spec_for("reviewed").map(|spec| spec.kind),
+            Some(CommandKind::ToggleShowReviewed)
         );
     }
 }

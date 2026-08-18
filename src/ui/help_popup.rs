@@ -439,6 +439,9 @@ pub fn render_help(frame: &mut Frame, app: &mut App) {
         Line::from(Span::raw(
             "  Patterns are case-insensitive and match the whole relative path.",
         )),
+        Line::from(Span::raw(
+            "  :set noreviewed hides files already marked reviewed.",
+        )),
         Line::from(""),
         Line::from(Span::styled(
             "Comment Navigator",
@@ -878,6 +881,13 @@ pub fn render_help(frame: &mut Frame, app: &mut App) {
                 Style::default().add_modifier(Modifier::BOLD),
             ),
             Span::raw("  Toggle inline commit selector"),
+        ]),
+        Line::from(vec![
+            Span::styled(
+                "  :set reviewed",
+                Style::default().add_modifier(Modifier::BOLD),
+            ),
+            Span::raw("  Show files marked reviewed (noreviewed hides, reviewed! toggles)"),
         ]),
         Line::from(vec![
             Span::styled(
