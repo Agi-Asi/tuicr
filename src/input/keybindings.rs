@@ -55,6 +55,10 @@ pub enum Action {
 
     // Session
     Quit,
+    /// Transitional hint for the removed `q`-quits binding: shows a message
+    /// pointing at `:q` instead of quitting. Drop this a few releases after
+    /// the `q` removal has had time to land.
+    QuitHint,
     ExportToClipboard,
     /// Copy just the comment under the cursor (`Y`), not the whole review.
     CopyCommentAtCursor,
@@ -239,8 +243,8 @@ fn map_normal_mode(key: KeyEvent, leader_key: char) -> Action {
         (KeyCode::Char('?'), _) => Action::ToggleHelp,
         (KeyCode::Esc, KeyModifiers::NONE) => Action::ClearSearchHighlight,
 
-        // Quick quit
-        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::Quit,
+        // Transitional hint: q used to quit; now it just points at :q.
+        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::QuitHint,
 
         (KeyCode::Char(' '), KeyModifiers::NONE) => Action::ToggleExpand,
         (KeyCode::Char('o'), KeyModifiers::NONE) => Action::ExpandAll,
@@ -431,7 +435,7 @@ fn map_submit_action_picker_mode(key: KeyEvent) -> Action {
         (KeyCode::Char('k') | KeyCode::Up, KeyModifiers::NONE) => Action::SubmitPickerUp,
         (KeyCode::Enter, KeyModifiers::NONE) => Action::SubmitPickerConfirm,
         (KeyCode::Esc, KeyModifiers::NONE) => Action::ExitMode,
-        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::Quit,
+        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::QuitHint,
         _ => Action::None,
     }
 }
@@ -443,7 +447,7 @@ fn map_commit_select_mode(key: KeyEvent) -> Action {
         (KeyCode::Char(' '), KeyModifiers::NONE) => Action::ToggleCommitSelect,
         (KeyCode::Enter, KeyModifiers::NONE) => Action::ConfirmCommitSelect,
         (KeyCode::Esc, KeyModifiers::NONE) => Action::ExitMode,
-        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::Quit,
+        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::QuitHint,
         (KeyCode::Char(':'), _) => Action::EnterCommandMode,
         (KeyCode::Tab, KeyModifiers::NONE) => Action::TargetSelectorTabNext,
         (KeyCode::BackTab, _) => Action::TargetSelectorTabPrev,
@@ -517,7 +521,7 @@ fn map_visual_mode(key: KeyEvent) -> Action {
         (KeyCode::Char('y'), KeyModifiers::NONE) => Action::ExportToClipboard,
         (KeyCode::Esc, KeyModifiers::NONE) => Action::ExitMode,
         (KeyCode::Char('v') | KeyCode::Char('V'), _) => Action::ExitMode,
-        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::Quit,
+        (KeyCode::Char('q'), KeyModifiers::NONE) => Action::QuitHint,
         _ => Action::None,
     }
 }
@@ -630,7 +634,7 @@ mod tests {
             map_file_tree_prompt_mode(key(KeyCode::Char('a'))),
             Action::InsertChar('a')
         );
-        // Keys that would otherwise act (q quits, / filters) are just text
+        // Keys that would otherwise act (/ filters) are just text
         // while the prompt is open.
         assert_eq!(
             map_file_tree_prompt_mode(key(KeyCode::Char('q'))),
@@ -996,5 +1000,27 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn should_map_q_to_quit_hint_instead_of_quitting() {
+        // `q` only quits via `:q` now; the modes that used to bind it to
+        // Action::Quit now show a transitional hint instead.
+        assert_eq!(
+            map_normal_mode(key(KeyCode::Char('q')), DEFAULT_LEADER_KEY),
+            Action::QuitHint
+        );
+        assert_eq!(map_visual_mode(key(KeyCode::Char('q'))), Action::QuitHint);
+        assert_eq!(
+            map_commit_select_mode(key(KeyCode::Char('q'))),
+            Action::QuitHint
+        );
+        assert_eq!(
+            map_submit_action_picker_mode(key(KeyCode::Char('q'))),
+            Action::QuitHint
+        );
+        // The overlays keep their own `q`, which closes them rather than tuicr.
+        assert_eq!(map_help_mode(key(KeyCode::Char('q'))), Action::ToggleHelp);
+        assert_eq!(map_summary_mode(key(KeyCode::Char('q'))), Action::ExitMode);
     }
 }
