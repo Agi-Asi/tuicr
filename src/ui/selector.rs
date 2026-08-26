@@ -418,7 +418,7 @@ fn render_target_selector_footer(frame: &mut Frame, app: &App, area: Rect) {
     } else {
         match app.target_tab {
             TargetTab::Local => {
-                "   j/k navigate \u{00b7} space range \u{00b7} \u{21b5} confirm \u{00b7} q quit"
+                "   j/k navigate \u{00b7} space range \u{00b7} \u{21b5} confirm \u{00b7} :q quit"
                     .to_string()
             }
             TargetTab::PullRequests => {
@@ -426,7 +426,7 @@ fn render_target_selector_footer(frame: &mut Frame, app: &App, area: Rect) {
                     PullRequestListScope::Open => "r requested",
                     PullRequestListScope::ReviewRequested => "r all PRs",
                 };
-                format!("   j/k navigate · ↵ open · {scope_hint} · / filter · esc/q back")
+                format!("   j/k navigate · ↵ open · {scope_hint} · / filter · esc back")
             }
         }
     };
