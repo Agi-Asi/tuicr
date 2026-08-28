@@ -378,16 +378,13 @@ where
 
     fn get_pull_request(&self, target: PullRequestTarget) -> Result<PullRequestDetails> {
         let repository = self.resolve_repository(&target)?;
-        let args = vec![
-            "mr".to_string(),
-            "view".to_string(),
-            target.number.to_string(),
-            "--repo".to_string(),
-            Self::repo_arg(&repository),
-            "--output".to_string(),
-            "json".to_string(),
-        ];
-        let output = self.run_glab(args, &repository.host)?;
+        // `glab mr view` does not accept `--output` on all supported glab
+        // versions (e.g. 1.36.0), so fetch the merge request through the
+        // version-stable `glab api` endpoint instead. The API response has the
+        // same field names as the `mr view --output json` shape.
+        let project = gl_project_path(&repository.owner, &repository.name);
+        let endpoint = format!("projects/{project}/merge_requests/{}", target.number);
+        let output = self.run_api(&repository, endpoint)?;
         let mr: GlabMrDetails = serde_json::from_str(&output)?;
         mr.into_details(&repository)
     }
@@ -1438,6 +1435,48 @@ mod tests {
             merged_at: None,
             diff_start_sha: Some("startsha1".to_string()),
         }
+    }
+
+    #[test]
+    fn should_fetch_merge_request_from_api_instead_of_mr_view() {
+        let repo = ForgeRepository::gitlab("gitlab.com", "owner", "repo");
+        let response = r#"{
+            "iid": 42,
+            "title": "Test MR",
+            "web_url": "https://gitlab.com/owner/repo/-/merge_requests/42",
+            "state": "opened",
+            "draft": false,
+            "author": { "username": "alice", "name": "Alice" },
+            "source_branch": "feature",
+            "target_branch": "main",
+            "sha": "headsha1",
+            "diff_refs": {
+                "base_sha": "basesha1",
+                "head_sha": "headsha1",
+                "start_sha": "startsha1"
+            },
+            "description": "Ship the panel",
+            "updated_at": "2026-06-01T12:00:00Z"
+        }"#
+        .to_string();
+        let runner = RecordingRunner::new_with_responses(vec![response]);
+        let backend = GitLabGlabBackend::with_runner(Some(repo), runner);
+
+        let details = backend
+            .get_pull_request(PullRequestTarget::with_repository(repo, 42, "42"))
+            .unwrap();
+
+        assert_eq!(details.number, 42);
+        assert_eq!(details.head_sha, "headsha1");
+        let calls = backend.runner.calls.borrow();
+        assert!(
+            calls[0]
+                .0
+                .iter()
+                .any(|arg| arg.contains("/merge_requests/42"))
+        );
+        assert!(!calls[0].0.iter().any(|arg| arg == "--output"));
+        assert!(!calls[0].0.iter().any(|arg| arg == "view"));
     }
 
     #[test]
